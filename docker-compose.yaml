@@ -1,0 +1,53 @@
+version: "3"
+
+services:
+  app:
+    build: ./app
+    image: 3grit-app
+    ports:
+      - "8000"
+    volumes:
+      - ./app:/app
+    extends:
+      file: env.yaml
+      service: config_node
+
+  dev:
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    image: 3grit-dev
+    ports:
+      - "7777:7777"
+    volumes:
+      - ./app:/app
+    extends:
+      file: env.yaml
+      service: config_node
+
+  nginx:
+    build: ./nginx
+    image: 3grit-nginx
+    ports: 
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+    links:
+      - app
+
+  redis:
+    build: ./redis
+    image: 3grit-redis
+
+  mongo:
+    build: ./mongo
+    image: 3grit-mongo
+    ports:
+      - "27017:27017"
+
+  postgres:
+    build: ./postgres
+    image: 3grit-postgres
+    restart: always
+    ports:
+      - "5432:5432"
