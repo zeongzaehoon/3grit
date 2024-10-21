@@ -2,7 +2,9 @@ version: "3"
 
 services:
   app:
-    build: ./app
+    build:
+      context: ./app
+      dockerfile: Dockerfile
     image: 3grit-app
     ports:
       - "8000:8000"
@@ -15,7 +17,7 @@ services:
   dev:
     build:
       context: ./app
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.dev
     image: 3grit-dev
     ports:
       - "7777:7777"
@@ -28,12 +30,18 @@ services:
   nginx:
     build: ./nginx
     image: 3grit-nginx
-    ports: 
-      - "8080:80"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-    links:
+    depends_on:
       - app
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - TZ=Asia/Seoul
+    volumes:
+      - /etc/localtime:/etc/localtime
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
+    restart: "always"
 
   redis:
     build: ./redis

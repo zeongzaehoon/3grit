@@ -5,16 +5,16 @@ import time
 import ast
 
 from langchain.prompts import ChatPromptTemplate
-from langchain_core.messages import SystemMessage, HumanMessage
-from langchain.schema.runnable import RunnableLambda, RunnablePassthrough
+from langchain_core.messages import HumanMessage
+from langchain.schema.runnable import RunnablePassthrough
 import tiktoken
 from openai import RateLimitError
 
 from .helper import *
 from. model import *
 from utils.constants import *
-from client.nosql import MongoClient
-from client.memory import RedisClient
+from utils.client.nosql import MongoClient
+from utils.client.memory import RedisClient
 
 
 def multiThread(runner, llmArgs):
@@ -130,137 +130,12 @@ def run_multiThread():
 
         except RateLimitError as e:
             logging.info(f"[module][run.py][chain_llm] {e}")
-            send_slack_message(message=f"[solomon-api][noCredit] {e}🫠")
+            # send_slack_message(message=f"[solomon-api][noCredit] {e}🫠")
         except Exception as e:
             logging.info(e)
         finally:
             gen.close()
     return chain_llm
-
-
-def run_singleThread(args):
-    """chatGPT 셋팅: 싱글스레드 버전"""
-    try:
-        system_prompt = args["system_prompt"]
-        retrieval_data = args["retrieval_data"]
-        question = args["question"]
-        session_key = args["session_key"]
-        indepth = args["indepth"]
-        retrieval_data_lambda = make_RunnableLambda(retrieval_data)
-        redis_save = args["redis_save"]
-        chain_objects = {
-                "retrieval_data": retrieval_data_lambda,
-                "question": RunnablePassthrough(),
-            }
-        token_dict = {"retrieval_data": retrieval_data, "question": question}
-        if redis_save:
-            conversation_history = args["conversation_history"]
-            conversation_history_lambda = make_RunnableLambda(conversation_history)
-            chain_objects['conversation_history'] = conversation_history_lambda
-            token_dict['conversation_history'] = conversation_history
-
-        args["insert_mongo"]["token"] = get_token_size(system_prompt.format(**token_dict))
-        data_mongo = mongo_format(session_key, "human", question, args["insert_mongo"])
-        result = MongoClient().insert(data_mongo)
-        args["insert_mongo"]["cid"] = str(result.inserted_id)
-        if redis_save:
-            data_redis = redis_format(role="human", message=question)
-            RedisClient().set_history(session_key, data_redis)
-            RedisClient().set_expire(session_key, 1800)
-        if not indepth:
-            chain = chain_objects | system_prompt | llm(None, args)
-            for line in chain.stream(question):
-                yield dict(line)["content"]
-        else:
-            for order, p in enumerate(system_prompt):
-                args["insert_mongo"]["order"] = order+1
-                conversation_history = get_conversation_history(session_key)
-                combined_context = get_combined_context(combined_context, conversation_history)
-                chain = chain_objects | p | llm(None, args)
-                for line in chain.stream(question):
-                    yield dict(line)["content"]
-
-    except Exception as e:
-        logging.info(e)
-
-def run_dummy(args):
-    # get args
-    system_prompt = args["system_prompt"]
-    retrieval_data = args["retrieval_data"]
-    retrieval_data_lambda = make_RunnableLambda(retrieval_data)
-    question = args["question"]
-    session_key = args["session_key"]
-    conversation_history = args["conversation_history"]
-    conversation_history_lambda = make_RunnableLambda(conversation_history)
-    insert_mongo = args["insert_mongo"]
-    redis_save = args["redis_save"]
-    indepth = args["indepth"]
-
-    # check args
-    if not isinstance(retrieval_data_lambda, RunnableLambda):
-        raise TypeError(f"Expected 'combined_context' to be of type RunnableLambda, but got {type(retrieval_data_lambda).__name__}")
-    elif not isinstance(conversation_history_lambda, RunnableLambda):
-        raise TypeError(f"Expected 'combined_context' to be of type RunnableLambda, but got {type(conversation_history_lambda).__name__}")
-    elif not isinstance(system_prompt, (ChatPromptTemplate, list)):
-        raise TypeError(f"Expected 'prompt' to be of type ChatPromptTemplate, but got {type(system_prompt).__name__}")
-    elif not isinstance(question, str):
-        raise TypeError(f"Expected 'question' to be of type str, but got {type(question).__name__}")
-    elif not isinstance(session_key, str):
-        raise TypeError(f"Expected 'session_key' to be of type str, but got {type(session_key).__name__}")
-    elif insert_mongo != None and not isinstance(insert_mongo, dict):
-        raise TypeError(f"Expected 'info' to be of type dict, but got {type(insert_mongo).__name__}")
-    elif not isinstance(redis_save, bool):
-        raise TypeError(f"Expected 'redis_save' to be of type bool, but got {type(redis_save).__name__}")
-
-    # run dummpy
-    else:
-        token_dict = {"conversation_history":conversation_history, "retrieval_data": retrieval_data, "question": question}
-        # request
-        if not indepth:
-            insert_mongo["token"] = get_token_size(system_prompt.format(**token_dict))
-            data_mongo = mongo_format(session_key, "human", question, insert_mongo)
-            result = MongoClient().insert(data_mongo)
-            insert_mongo["cid"] = str(result.inserted_id)
-            data_redis = redis_format(role="human", message=question)
-            RedisClient().set_history(session_key, data_redis)
-            RedisClient().set_expire(session_key, 1800)
-        else:
-            before_answer = ""
-            token_dict["before_answer"] = before_answer
-            for p in system_prompt:                
-                insert_mongo["token"] = get_token_size(p.format(**token_dict))
-                data_mongo = mongo_format(session_key, "human", question, insert_mongo)
-                result = MongoClient().insert(data_mongo)
-                insert_mongo["cid"] = str(result.inserted_id)
-                data_redis = redis_format(role="human", message=question)
-                RedisClient().set_history(session_key, data_redis)
-
-        # response
-        if not indepth:
-            callback = "Dummy-api TEST"
-            insert_mongo["token"] = get_token_size(callback)
-            data_mongo = mongo_format(session_key, "ai", callback, insert_mongo)
-            MongoClient().insert(data_mongo)
-            data_redis = redis_format(role="ai", message=callback)
-            RedisClient().set_history(session_key, data_redis)
-            RedisClient().set_expire(session_key, 1800)
-            for gen in "Test is Success! Dummy is Running \n\n"+"This is Your Question: "+ question:
-                time.sleep(0.01)
-                yield gen
-        else:
-            for enum, p in enumerate(system_prompt):
-                insert_mongo["order"] = enum+1
-                callback = "Dummy-api TEST"
-                insert_mongo["token"] = get_token_size(callback)
-                data_mongo = mongo_format(session_key, "ai", callback, insert_mongo)
-                MongoClient().insert(data_mongo)
-                data_redis = redis_format(role="ai", message=callback)
-                RedisClient().set_history(session_key, data_redis)
-                RedisClient().set_expire(session_key, 1800)
-                tail_message = f"This is {enum+1} roof."
-                for gen in tail_message + "\n\n" +"Congratulation! It works \n\n"+"This is Your Question: "+ question + "\n\n\n\n" :
-                    time.sleep(0.025)
-                    yield gen
 
 
 
