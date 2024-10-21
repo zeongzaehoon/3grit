@@ -5,7 +5,7 @@ services:
     build: ./app
     image: 3grit-app
     ports:
-      - "8000"
+      - "8000:8000"
     volumes:
       - ./app:/app
     extends:
@@ -42,8 +42,6 @@ services:
   mongo:
     build: ./mongo
     image: 3grit-mongo
-    ports:
-      - "27017:27017"
 
   postgres:
     build: ./postgres

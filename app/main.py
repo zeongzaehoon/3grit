@@ -11,9 +11,9 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
 
 # router
-from api.chat.chat import chat
-from api.map.map import map
-from api.user.user import user
+from chat.chat import chat
+from map.map import map
+from user.user import user
 
 # server
 import uvicorn
