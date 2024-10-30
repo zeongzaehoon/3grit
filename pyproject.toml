@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "3grit"
+version = "0.1.0"
+description = ""
+authors = ["jaehoon <jaehoon@4grit.com>", "dohyeonan <dh.an@4grit.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+fastapi = "^0.115.4"
+uvicorn = {extras = ["standard"], version = "^0.32.0"}
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
