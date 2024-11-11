@@ -11,8 +11,8 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
 
 # router
-from chat.chat import chat
-from map.map import map
+from app.src.chat.chat import chat
+from app.src.map.map import map
 from user.user import user
 
 # server
@@ -63,7 +63,7 @@ async def _hello(Authorize: AuthJWT = Depends()):
         access_token = Authorize.create_access_token(subject=identify)
         refresh_token = Authorize.create_refresh_token(subject=identify)
         return {"code": 200, "message": "hello", "data": "", "access_token": access_token, "refresh_token": refresh_token}
-    
+
 
 @app.get("/refresh")
 async def _refresh(Authorize: AuthJWT = Depends()):
