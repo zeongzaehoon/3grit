@@ -11,12 +11,15 @@ from fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
 
 # router
-from app.src.chat.chat import chat
-from app.src.map.map import map
-from user.user import user
+from src.chat.chat import chat
+from src.map.map import map
+# from src.user.user import user
 
 # server
 import uvicorn
+
+# database - alchemy
+from utils.database.database import init_db
 
 # load .env & set root path
 # APP_ROOT = os.path.dirname(__file__)
@@ -27,7 +30,12 @@ import uvicorn
 app = FastAPI()
 app.include_router(chat)
 app.include_router(map)
-app.include_router(user)
+# app.include_router(user)
+
+#init database
+@app.on_event("startup")
+async def on_startup():
+    await init_db()
 
 # AuthJWT configuration settings
 class Settings(BaseModel):
