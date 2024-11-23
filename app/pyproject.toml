@@ -10,6 +10,10 @@ python = "^3.8"
 fastapi = "^0.115.4"
 uvicorn = {extras = ["standard"], version = "^0.32.0"}
 py-ulid = "^1.0.3"
+sqlalchemy = "^2.0.36"
+mysqlclient = "^2.2.6"
+alembic = "^1.14.0"
+pymysql = "^1.1.1"
 
 
 [build-system]
