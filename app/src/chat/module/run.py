@@ -13,8 +13,8 @@ from openai import RateLimitError
 from .helper import *
 from. model import *
 from utils.constants import *
-from utils.database.client.nosql import MongoClient
-from utils.database.client.memory import RedisClient
+from utils.client.nosql import MongoClient
+from utils.client.memory import RedisClient
 
 
 def multiThread(runner, llmArgs):
