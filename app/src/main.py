@@ -6,13 +6,13 @@ from uuid import uuid4
 # fast-api
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import JSONResponse
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import AuthJWTException
+from async_fastapi_jwt_auth import AuthJWT
+from async_fastapi_jwt_auth.exceptions import AuthJWTException
 from pydantic import BaseModel
 
 # router
-from src.chat.chat import chat
-from src.map.map import map
+from chat.chat import chat
+from map.map import map
 # from src.user.user import user
 
 # server
@@ -20,11 +20,6 @@ import uvicorn
 
 # database - alchemy
 from utils.database.database import init_db
-
-# load .env & set root path
-# APP_ROOT = os.path.dirname(__file__)
-# dotenv_path = os.path.join(APP_ROOT, '.env')
-# load_dotenv(dotenv_path, override=True)
 
 # api setting
 app = FastAPI()
