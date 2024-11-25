@@ -19,7 +19,7 @@ from map.map import map
 import uvicorn
 
 # database - alchemy
-from utils.database.database import init_db
+from utils.database import init_db
 
 # api setting
 app = FastAPI()

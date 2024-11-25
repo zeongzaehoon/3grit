@@ -4,7 +4,7 @@ from bson.objectid import ObjectId
 from langchain_openai import ChatOpenAI
 from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
 
-from utils.database.client.memory import RedisClient
+from utils.client.memory import RedisClient
 from utils.constants import *
 
 from .helper import *
