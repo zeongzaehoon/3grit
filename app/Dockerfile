@@ -8,7 +8,13 @@ WORKDIR /app
 COPY . /app
 
 # 필요한 패키지 설치
-RUN pip install --no-cache-dir -r /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements/requirements.txt
+
+# 코드 작업 디렉토리 설정
+WORKDIR /app/src
+
+# PYTHONPATH 설정
+ENV PYTHONPATH=/app/src
 
 # 8000번 포트 열기
 EXPOSE 8000

@@ -4,8 +4,8 @@ import logging
 # fastapi
 from fastapi import APIRouter, Request, Depends, UploadFile, File, Form, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
-from fastapi_jwt_auth import AuthJWT
-from fastapi_jwt_auth.exceptions import JWTDecodeError
+from async_fastapi_jwt_auth import AuthJWT
+from async_fastapi_jwt_auth.exceptions import JWTDecodeError
 
 # model
 from .payload import *

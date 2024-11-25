@@ -5,7 +5,7 @@ import tiktoken
 # from pytz import timezone
 
 from utils.constants import *
-from utils.client.memory import RedisClient
+from utils.database.client.memory import RedisClient
 
 
 
