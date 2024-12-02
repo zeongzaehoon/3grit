@@ -2,6 +2,7 @@ import os
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
 
+
 DATABASE_URL = f"postgresql+asyncpg://{os.getenv('SQL_DB_USERNAME')}:{os.getenv('SQL_DB_PASSWORD')}@{os.getenv('SQL_DB_HOST')}:{os.getenv('SQL_DB_PORT')}/{os.getenv('SQL_DB_NAME')}"
 
 # 비동기 엔진 및 세션 생성
@@ -16,5 +17,8 @@ async def get_db():
 
 # 데이터베이스 초기화 함수
 async def init_db():
+    from map.infra.db_models import branch, brand, room, wishlist_has_room
+    from user.infra.db_models import review, wishlist, user
+    print("Importing models:", Base.metadata.tables.keys())
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)

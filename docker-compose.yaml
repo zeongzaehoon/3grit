@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile.dev
     image: 3grit-dev
     ports:
-      - "7777:7777"
+      - "7777:8000"
     volumes:
       - ./app:/app
     extends:
