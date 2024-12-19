@@ -3,7 +3,7 @@ from user.domain.repository.user_repo import IUserRepository
 from user.domain.user import User as UserVO
 from user.infra.db_models.user import User
 from fastapi import HTTPException
-from utils.db_utils import row_to_dict
+from utils.helpers import row_to_dict
 
 
 class UserRepository(IUserRepository):

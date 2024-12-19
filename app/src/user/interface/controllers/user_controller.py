@@ -1,10 +1,10 @@
-from app.src.utils.containers import Container
+from utils.containers import Container
 from dependency_injector.wiring import inject, Provide
 from typing import Annotated
 from fastapi import APIRouter, Depends
 from pydantic import BaseModel, EmailStr, Field
 
-from app.src.user.application.user_service import UserService
+from user.application.user_service import UserService
 
 router = APIRouter(prefix="/users")
 

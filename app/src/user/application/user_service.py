@@ -7,7 +7,6 @@
 """
 
 from ulid import ULID
-from utils.containers import Container
 from datetime import datetime
 from dependency_injector.wiring import inject, Provide
 from fastapi import HTTPException, Depends
