@@ -16,7 +16,8 @@ pillow==10.2.0
 pytz==2024.2
 mysql-connector-python==8.4.0
 pymongo==3.11.3
-
+dependency-injector==4.44.0
+py-ulid==1.0.3
 
 # v.12로 인한 에러
 uvicorn[standard]

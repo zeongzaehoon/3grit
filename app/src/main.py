@@ -4,6 +4,7 @@ import os
 from uuid import uuid4
 
 # fast-api
+from utils.containers import Container
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from async_fastapi_jwt_auth import AuthJWT
@@ -23,6 +24,7 @@ from utils.database import init_db
 
 # api setting
 app = FastAPI()
+app.container = Container()
 app.include_router(chat)
 app.include_router(map)
 # app.include_router(user)

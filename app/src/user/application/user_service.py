@@ -8,12 +8,21 @@
 
 from ulid import ULID
 from datetime import datetime
+from dependency_injector.wiring import inject, Provide
+from fastapi import HTTPException, Depends
+from typing import Annotated
 from user.domain.user import User
 from user.domain.repository.user_repo import IUserRepository
 from user.infra.repository.user_repo import UserRepository
 
 class UserService:
-    def __init__(self):
+    @inject
+    def __init__(
+            self,
+            # user_repo: Annotated[IUserRepository, Depends(UserRepository)]
+            # user_repo: IUserRepository = Depends(Provide[Container.user_repo])
+            user_repo: IUserRepository,
+    ):
         """_summary_
             1. 유저를 데이터베이스에 저장하는 저장소는 인프라 계층에 구현되어 있어야 한다.
                 외부의 서비스를 다루는 모듈은 그 수준이 낮기 때문이다. 따라서 데이터를 저장하기 위해 IUserRepository를 사용한다. 의존성이 역전돼 있다.
