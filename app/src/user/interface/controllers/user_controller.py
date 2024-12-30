@@ -17,13 +17,13 @@ class CreateUserBody(BaseModel):
 
 @router.post("", status_code=201)
 @inject
-def create_user(
+async def create_user(
     user: CreateUserBody,
     # NOTE: 앞 장에서의 코드와 같이 UserService를 직접 생성하지 않고 주입받은 객체를 시용한다.
     user_service: UserService = Depends(Provide[Container.user_service])
     # user_service: Annotated[UserService, Depends(UserService)]
 ):
-    created_user = user_service.create_user(
+    created_user = await user_service.create_user(
         name=user.name,
         email=user.email,
         password=user.password,

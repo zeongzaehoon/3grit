@@ -19,7 +19,7 @@ class UserRepository(IUserRepository):
 
         async with SessionLocal() as db:
             db.add(new_user)
-            db.commit()
+            await db.commit()
 
     def find_by_email(self, email:str) -> UserVO:
         with SessionLocal() as db:

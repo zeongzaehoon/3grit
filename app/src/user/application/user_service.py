@@ -30,7 +30,7 @@ class UserService:
         self.user_repo = user_repo  # NOTE: 추후에 의존성 주입으로 변경할 예정.
         self.ulid = ULID()
 
-    def create_user(self, name:str, email:str, password:str):
+    async def create_user(self, name:str, email:str, password:str):
         now=datetime.now()
         user:User = User(
             id=self.ulid.generate(),
@@ -40,6 +40,6 @@ class UserService:
             created_at=now,
             updated_at=now,
         )
-        self.user_repo.save(user)
+        await self.user_repo.save(user)
 
         return user
