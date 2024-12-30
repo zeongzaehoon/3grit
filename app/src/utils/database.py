@@ -17,8 +17,9 @@ async def get_db():
 
 # 데이터베이스 초기화 함수
 async def init_db():
-    from map.infra.db_models import branch, brand, room, wishlist_has_room
+    from map.infra.db_models import branch, brand, room
     from user.infra.db_models import review, wishlist, user
+    from map.infra.db_models import wishlist_has_room
     print("Importing models:", Base.metadata.tables.keys())
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
