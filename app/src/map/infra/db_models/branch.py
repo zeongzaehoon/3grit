@@ -13,4 +13,4 @@ class Branch(Base):
     booking_link = Column(String(2000))
     brand_id = Column(Integer, ForeignKey("brand.id"))
     
-    brand = relationship("Brand", back_populates="branch")
+    # brand = relationship("Brand", back_populates="branch")

@@ -26,12 +26,14 @@ from utils.database import init_db
 # api setting
 app = FastAPI()
 app.container = Container()
+app.container.wire(modules=["user.interface.controllers.user_controller"])
+
 app.include_router(chat)
 app.include_router(map)
 app.include_router(user_routers)
 
 
-#init database
+# init database
 @app.on_event("startup")
 async def on_startup():
     await init_db()
@@ -51,7 +53,6 @@ def authjwt_exception_handler(request, exc):
         status_code=exc.status_code,
         content={"detail": exc.message}
     )
-
 
 
 # API for token
@@ -81,7 +82,6 @@ async def _refresh(Authorize: AuthJWT = Depends()):
     current_user = Authorize.get_jwt_subject()
     access_token = Authorize.create_access_token(subject=current_user)
     return {"code": 200, "message": "refresh", "data": "", "access_token": access_token}
-
 
 
 # Run API server

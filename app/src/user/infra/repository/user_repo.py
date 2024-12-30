@@ -7,7 +7,7 @@ from utils.helpers import row_to_dict
 
 
 class UserRepository(IUserRepository):
-    def save(self, user:UserVO):
+    async def save(self, user:UserVO):
         new_user = User(
             id=user.id,
             email=user.email,
@@ -17,13 +17,9 @@ class UserRepository(IUserRepository):
             updated_at=user.updated_at,
         )
 
-        with SessionLocal as db:
-            try:
-                db = SessionLocal()
-                db.add(new_user)
-                db.commit()
-            finally:
-                db.close()
+        async with SessionLocal() as db:
+            db.add(new_user)
+            db.commit()
 
     def find_by_email(self, email:str) -> UserVO:
         with SessionLocal() as db:

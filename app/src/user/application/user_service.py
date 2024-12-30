@@ -27,7 +27,7 @@ class UserService:
             1. 유저를 데이터베이스에 저장하는 저장소는 인프라 계층에 구현되어 있어야 한다.
                 외부의 서비스를 다루는 모듈은 그 수준이 낮기 때문이다. 따라서 데이터를 저장하기 위해 IUserRepository를 사용한다. 의존성이 역전돼 있다.
         """
-        self.user_repo: IUserRepository = UserRepository()  # NOTE: 추후에 의존성 주입으로 변경할 예정.
+        self.user_repo = user_repo  # NOTE: 추후에 의존성 주입으로 변경할 예정.
         self.ulid = ULID()
 
     def create_user(self, name:str, email:str, password:str):

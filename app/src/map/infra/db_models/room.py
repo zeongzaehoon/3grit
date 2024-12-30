@@ -16,4 +16,4 @@ class Room(Base):
     image_url = Column(String(1000))
     branch_id = Column(Integer, ForeignKey("branch.id"))
     
-    branch = relationship("Branch", back_populates="room")
+    # branch = relationship("Branch", back_populates="room")
