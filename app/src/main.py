@@ -14,6 +14,7 @@ from pydantic import BaseModel
 # router
 from chat.chat import chat
 from map.map import map
+from user.interface.controllers.user_controller import router as user_routers
 # from src.user.user import user
 
 # server
@@ -27,7 +28,8 @@ app = FastAPI()
 app.container = Container()
 app.include_router(chat)
 app.include_router(map)
-# app.include_router(user)
+app.include_router(user_routers)
+
 
 #init database
 @app.on_event("startup")
