@@ -14,7 +14,7 @@ from typing import Annotated
 from user.domain.user import User
 from user.domain.repository.user_repo import IUserRepository
 from user.infra.repository.user_repo import UserRepository
-from utils.auth import create_access_token
+from utils.auth import create_access_token, Role
 from utils.crypto import Crypto
 
 
@@ -33,6 +33,11 @@ class UserService:
         self.ulid = ULID()
         self.crypto = crypto
 
+    async def get_users(self, page: int, items_per_page: int) -> tuple[int, list[User]]:
+        users = await self.user_repo.get_users(page, items_per_page)
+
+        return users
+
     async def create_user(self, name:str, email:str, password:str):
         now=datetime.now()
 
@@ -50,14 +55,34 @@ class UserService:
 
         return user
 
+    async def update_user(
+        self,
+        user_id: str,
+        name: str | None = None,
+        password: str | None = None,
+    ):
+        user = await self.user_repo.find_by_id(user_id)
+
+        if name:
+            user.name = name
+        if password:
+            user.password = self.crypto.encrypt(password)
+        user.updated_at = datetime.now()
+
+        await self.user_repo.update(user)
+
+        return user
+
     async def login(self, email:str, password:str):
         user = await self.user_repo.find_by_email(email)
 
         if not self.crypto.verify(password, user.password):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
 
+        # TODO: DB에서 user의 역할을 가져와 role을 설정해야 함.
         access_token = create_access_token(
-            payload={"user_id": user.id}
+            payload={"user_id": user.id},
+            role=Role.USER
         )
 
         return access_token
