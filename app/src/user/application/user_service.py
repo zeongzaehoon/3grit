@@ -9,19 +9,21 @@
 from ulid import ULID
 from datetime import datetime
 from dependency_injector.wiring import inject, Provide
-from fastapi import HTTPException, Depends
+from fastapi import HTTPException, Depends, status
 from typing import Annotated
 from user.domain.user import User
 from user.domain.repository.user_repo import IUserRepository
 from user.infra.repository.user_repo import UserRepository
+from utils.auth import create_access_token, Role
+from utils.crypto import Crypto
+
 
 class UserService:
     @inject
     def __init__(
             self,
-            # user_repo: Annotated[IUserRepository, Depends(UserRepository)]
-            # user_repo: IUserRepository = Depends(Provide[Container.user_repo])
             user_repo: IUserRepository,
+            crypto: Crypto,
     ):
         """_summary_
             1. 유저를 데이터베이스에 저장하는 저장소는 인프라 계층에 구현되어 있어야 한다.
@@ -29,17 +31,58 @@ class UserService:
         """
         self.user_repo = user_repo  # NOTE: 추후에 의존성 주입으로 변경할 예정.
         self.ulid = ULID()
+        self.crypto = crypto
+
+    async def get_users(self, page: int, items_per_page: int) -> tuple[int, list[User]]:
+        users = await self.user_repo.get_users(page, items_per_page)
+
+        return users
 
     async def create_user(self, name:str, email:str, password:str):
         now=datetime.now()
+
+        hashed_password = self.crypto.encrypt(password)
+
         user:User = User(
             id=self.ulid.generate(),
             name=name,
             email=email,
-            password=password,
+            password=hashed_password,
             created_at=now,
             updated_at=now,
         )
         await self.user_repo.save(user)
 
         return user
+
+    async def update_user(
+        self,
+        user_id: str,
+        name: str | None = None,
+        password: str | None = None,
+    ):
+        user = await self.user_repo.find_by_id(user_id)
+
+        if name:
+            user.name = name
+        if password:
+            user.password = self.crypto.encrypt(password)
+        user.updated_at = datetime.now()
+
+        await self.user_repo.update(user)
+
+        return user
+
+    async def login(self, email:str, password:str):
+        user = await self.user_repo.find_by_email(email)
+
+        if not self.crypto.verify(password, user.password):
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
+
+        # TODO: DB에서 user의 역할을 가져와 role을 설정해야 함.
+        access_token = create_access_token(
+            payload={"user_id": user.id},
+            role=Role.USER
+        )
+
+        return access_token
