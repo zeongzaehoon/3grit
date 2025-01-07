@@ -1,3 +1,4 @@
+from utils.config import get_settings
 from datetime import datetime, timedelta
 from enum import StrEnum
 from fastapi import HTTPException, status, Depends
@@ -6,7 +7,9 @@ from jose import jwt, JWTError
 from typing import Annotated
 from dataclasses import dataclass
 
-SECRET_KEY = "THIS_IS_SUPER_SECRET_KEY"
+settings = get_settings()
+
+SECRET_KEY = settings.jwt_secret
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
