@@ -87,7 +87,7 @@ class GetUsersResponse(BaseModel):
 async def get_users(
     page: int = 1,
     items_per_page: int = 10,
-    current_user: CurrentUser = Depends(get_admin_user),
+    current_user: CurrentUser = Depends(get_current_user),  # TODO: 임시로 설정, 추후에 get_admin_user로 변경하기.
     user_service: UserService = Depends(Provide[Container.user_service])
 ) -> GetUsersResponse:
     total_count, users = await user_service.get_users(page, items_per_page)
