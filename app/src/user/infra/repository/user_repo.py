@@ -63,7 +63,7 @@ class UserRepository(IUserRepository):
 
         return UserVO(**row_to_dict(user))
 
-    async def update(self, user_vo: UserVO):
+    async def update(self, user_vo: UserVO) -> UserVO:
         async with SessionLocal() as db:
             query = select(User).filter(User.id == user_vo.id)
             result = await db.execute(query)
@@ -78,4 +78,4 @@ class UserRepository(IUserRepository):
             db.add(user)
             await db.commit()
 
-        return user
+            return UserVO(**row_to_dict(user))
