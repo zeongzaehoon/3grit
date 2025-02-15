@@ -55,7 +55,7 @@ class UserService:
 
     async def update_user(
         self,
-        user_id: str,
+        user_id: int,
         name: str | None = None,
         password: str | None = None,
     ):

@@ -19,7 +19,7 @@ class CreateUserBody(BaseModel):
 
 
 class UserResponse(BaseModel):
-    id: str
+    id: int
     name: str
     email: str
     created_at: datetime

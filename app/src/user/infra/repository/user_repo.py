@@ -55,7 +55,7 @@ class UserRepository(IUserRepository):
 
         return UserVO(**row_to_dict(user))
 
-    async def find_by_id(self, id: str):
+    async def find_by_id(self, id: int):
         async with SessionLocal() as db:
             query = select(User).filter(User.id == id)
             result = await db.execute(query)
