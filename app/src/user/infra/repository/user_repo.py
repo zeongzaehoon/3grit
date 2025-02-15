@@ -10,7 +10,6 @@ from utils.helpers import row_to_dict
 class UserRepository(IUserRepository):
     async def save(self, user:UserVO):
         new_user = User(
-            id=user.id,
             email=user.email,
             name=user.name,
             password=user.password,
@@ -21,6 +20,10 @@ class UserRepository(IUserRepository):
         async with SessionLocal() as db:
             db.add(new_user)
             await db.commit()
+            await db.refresh(new_user)
+            
+            # Update the domain object with the generated id
+            user.id = new_user.id
 
     async def get_users(
         self,
