@@ -7,7 +7,7 @@ import { useUsers, useCreateUser, useUpdateUser } from './hooks/useUsers';
 import { useChatHistory, useSendChat } from './hooks/useChat';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<'chat' | 'users' | 'login' | 'map'>('map');
+  const [activeTab, setActiveTab] = useState<'chat' | 'users' | 'login' | 'signup' | 'map'>('map');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userInfo, setUserInfo] = useState<{ name: string; email: string } | null>(null);
 
@@ -90,17 +90,30 @@ function App() {
                       </button>
                     </div>
                   ) : (
-                    <button
-                      onClick={() => setActiveTab('login')}
-                      className={`${
-                        activeTab === 'login'
-                          ? 'border-indigo-500 text-gray-900'
-                          : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
-                      } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
-                    >
-                      <LogIn className="h-4 w-4 mr-2" />
-                      Login
-                    </button>
+                    <div className="flex space-x-4">
+                      <button
+                        onClick={() => setActiveTab('login')}
+                        className={`${
+                          activeTab === 'login'
+                            ? 'border-indigo-500 text-gray-900'
+                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                      >
+                        <LogIn className="h-4 w-4 mr-2" />
+                        Login
+                      </button>
+                      <button
+                        onClick={() => setActiveTab('signup')}
+                        className={`${
+                          activeTab === 'signup'
+                            ? 'border-indigo-500 text-gray-900'
+                            : 'border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700'
+                        } inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium`}
+                      >
+                        <UserPlus className="h-4 w-4 mr-2" />
+                        Sign up
+                      </button>
+                    </div>
                   )}
                 </div>
               </div>
@@ -121,6 +134,13 @@ function App() {
               setUserInfo(userData);
               setActiveTab('map');
             }} 
+          />
+        )}
+        {activeTab === 'signup' && !isLoggedIn && (
+          <SignupSection
+            onSignup={() => {
+              setActiveTab('login');
+            }}
           />
         )}
       </main>
@@ -443,6 +463,7 @@ function LoginSection({ onLogin }: { onLogin: (userData: { name: string; email: 
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const { mutate: login } = useLogin();
+  const [error, setError] = useState('');
 
   const handleLogin = () => {
     login(
@@ -453,7 +474,7 @@ function LoginSection({ onLogin }: { onLogin: (userData: { name: string; email: 
         },
         onError: (error) => {
           console.error('Login error:', error);
-          alert('Login failed. Please check your credentials.');
+          setError('Invalid email or password. Please try again.');
         },
       }
     );
@@ -465,41 +486,180 @@ function LoginSection({ onLogin }: { onLogin: (userData: { name: string; email: 
   };
 
   return (
-    <div className="bg-white shadow sm:rounded-lg p-6 max-w-md mx-auto">
-      <h2 className="text-lg font-medium text-gray-900 mb-4">Login</h2>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div>
-          <label htmlFor="username" className="block text-sm font-medium text-gray-700">
-            Username
-          </label>
-          <input
-            type="text"
-            id="username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
+    <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Login</h2>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <div className="mt-1">
+                <input
+                  type="email"
+                  id="email"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  required
+                />
+              </div>
+            </div>
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  type="password"
+                  id="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  required
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                <LogIn className="h-4 w-4 mr-2" />
+                Login
+              </button>
+            </div>
+          </form>
         </div>
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <input
-            type="password"
-            id="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            className="mt-1 block w-full rounded-md border border-gray-300 px-3 py-2 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
-          />
+      </div>
+    </div>
+  );
+}
+
+function SignupSection({ onSignup }: { onSignup: () => void }) {
+  const { mutate: createUser } = useCreateUser();
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+  });
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      createUser(formData, {
+        onSuccess: () => {
+          setFormData({ name: '', email: '', password: '' });
+          setError('');
+          alert('Sign up completed. Please login.');
+          onSignup();
+        },
+        onError: (error: any) => {
+          console.error('Signup error:', error);
+          if (error.message.includes('422')) {
+            setError('Email already exists.');
+          } else {
+            setError('An error occurred during sign up. Please try again.');
+          }
+        },
+      });
+    } catch (err) {
+      console.error('Signup error:', err);
+      setError('An error occurred during sign up. Please try again.');
+    }
+  };
+
+  return (
+    <div className="min-h-full flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">Sign up</h2>
+      </div>
+
+      <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
+          <form className="space-y-6" onSubmit={handleSubmit}>
+            <div>
+              <label htmlFor="name" className="block text-sm font-medium text-gray-700">
+                Name
+              </label>
+              <div className="mt-1">
+                <input
+                  id="name"
+                  name="name"
+                  type="text"
+                  required
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                Email
+              </label>
+              <div className="mt-1">
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                Password
+              </label>
+              <div className="mt-1">
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  autoComplete="new-password"
+                  required
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="text-red-600 text-sm">
+                {error}
+              </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+              >
+                Sign up
+              </button>
+            </div>
+          </form>
         </div>
-        <button
-          type="submit"
-          className="w-full inline-flex justify-center items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-        >
-          <LogIn className="h-4 w-4 mr-2" />
-          Login
-        </button>
-      </form>
+      </div>
     </div>
   );
 }
