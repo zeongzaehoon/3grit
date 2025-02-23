@@ -5,6 +5,7 @@ from uuid import uuid4
 
 # fast-api
 from utils.containers import Container
+from utils.config import get_settings
 from fastapi import FastAPI, Depends, HTTPException
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,7 +15,7 @@ from pydantic import BaseModel
 
 # router
 from chat.chat import chat
-from map.map import map
+from map.interface.controllers.map_controller import map
 from user.interface.controllers.user_controller import router as user_routers
 # from src.user.user import user
 
@@ -37,6 +38,7 @@ app.add_middleware(
 )
 
 app.container = Container()
+app.container.wire(modules=["map.interface.controllers.map_controller"])
 app.container.wire(modules=["user.interface.controllers.user_controller"])
 
 app.include_router(chat)
@@ -51,7 +53,7 @@ async def on_startup():
 
 # AuthJWT configuration settings
 class Settings(BaseModel):
-    authjwt_secret_key: str = os.getenv('JWT_SECRET_KEY', 'BE-EAGLE SECRET')
+    authjwt_secret_key: str = get_settings().jwt_secret or os.getenv('JWT_SECRET', '3GRIT SECRET')
 
 @AuthJWT.load_config
 def get_config():

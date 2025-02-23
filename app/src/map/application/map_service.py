@@ -1,25 +1,38 @@
-from ulid import ULID
 from datetime import datetime
+from pytz import timezone
 from dependency_injector.wiring import inject, Provide
 from fastapi import HTTPException, Depends, status
 from typing import Annotated
-from user.domain.user import User
-from user.domain.repository.user_repo import IUserRepository
-from user.infra.repository.user_repo import UserRepository
-from utils.auth import create_access_token, Role
-from utils.crypto import Crypto
+from map.domain.store import Store
+from map.domain.repository.map_repo import IMapRepository
+from map.infra.repository.map_repo import MapRepository
 
 
-# class MapService:
-#     @inject
-#     def __init__(
-#         self,
-#         # map_repo: IMapRepository,
-#     ):
-#         # self.map_repo = map_repo
+class MapService:
+    @inject
+    def __init__(
+        self,
+        map_repo: IMapRepository,
+    ):
+        self.map_repo = map_repo
 
-#     async def create_map(self, store_id: int, category_id: int, subcategory_id: int, name: str, mapx: float, mapy: float, kakao_map_id: str):
-#         pass
+    async def register_store(self, store):
+        current_time = datetime.now(timezone('UTC'))
+        
+        store: Store = Store(
+            category_id=store.CategoryId,
+            subcategory_id=store.SubCategoryId,
+            name=store.Name,
+            mapx=store.MapX,
+            mapy=store.MapY,
+            created_date=current_time,
+            updated_date=current_time,
+            address_name=store.AddressName,
+            kakao_map_id=store.KakaoMapId,
+        )
+        
+        await self.map_repo.register(store)
 
-#     async def get_map(self, kakao_map_id: str):
-#         pass
+
+    async def get_map(self, kakao_map_id: str):
+        pass
